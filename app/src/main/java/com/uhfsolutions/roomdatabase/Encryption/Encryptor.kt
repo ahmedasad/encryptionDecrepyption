@@ -9,7 +9,7 @@ import java.security.SecureRandom
 import javax.crypto.*
 
 
-class EnCryptor {
+class Encryptor {
     private val TRANSFORMATION = "AES/GCM/NoPadding"
     private val ANDROID_KEY_STORE = "AndroidKeyStore"
     private val IV_SEPARATOR = "]"

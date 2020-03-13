@@ -13,9 +13,9 @@ class EncryptionKeyStoreImpl {
 
 
     var key: SecretKey? = null
-    private var encryptor: EnCryptor? = null
+    private var encryptor: Encryptor? = null
 
-    private var decryptor: DeCryptor? = null
+    private var decryptor: Decryptor? = null
 
     /**
      * Making this class Singleton
@@ -27,8 +27,8 @@ class EncryptionKeyStoreImpl {
 
     init {
         try {
-            encryptor = EnCryptor()
-            decryptor = DeCryptor()
+            encryptor = Encryptor()
+            decryptor = Decryptor()
             generateKey()
         } catch (e: Exception) {
             e.printStackTrace()

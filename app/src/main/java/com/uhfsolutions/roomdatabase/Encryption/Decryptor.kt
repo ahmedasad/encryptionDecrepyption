@@ -10,7 +10,7 @@ import javax.crypto.spec.IvParameterSpec
 import javax.security.cert.CertificateException
 
 
-class DeCryptor internal constructor() {
+class Decryptor internal constructor() {
     private var keyStore: KeyStore? = null
     @Throws(
         KeyStoreException::class,

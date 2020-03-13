@@ -4,8 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import com.uhfsolutions.roomdatabase.Encryption.DeCryptor
-import com.uhfsolutions.roomdatabase.Encryption.EnCryptor
+import com.uhfsolutions.roomdatabase.Encryption.Decryptor
+import com.uhfsolutions.roomdatabase.Encryption.Encryptor
 import com.uhfsolutions.roomdatabase.Encryption.EncryptionKeyStoreImpl
 import com.uhfsolutions.roomdatabase.model.Clazz
 import kotlinx.coroutines.*
@@ -14,20 +14,18 @@ import kotlinx.coroutines.Dispatchers.IO
 class MainActivity : AppCompatActivity() {
 
     private lateinit var textView: TextView
-    private lateinit var encrypter: EnCryptor
+    private lateinit var encrypter: Encryptor
     private lateinit var encryptionKeyStoreImpl: EncryptionKeyStoreImpl
-    private lateinit var deCryptor: DeCryptor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
-        encrypter = EnCryptor()
+        encrypter = Encryptor()
         encryptionKeyStoreImpl = EncryptionKeyStoreImpl()
         encryptionKeyStoreImpl.setContext(this)
         encryptionKeyStoreImpl.loadKey()
-        deCryptor = DeCryptor()
 
         textView = findViewById(R.id.textView)
         val repo = Repository(this)
