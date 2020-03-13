@@ -10,7 +10,6 @@ import com.uhfsolutions.roomdatabase.Encryption.EncryptionKeyStoreImpl
 import com.uhfsolutions.roomdatabase.model.Clazz
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlin.reflect.typeOf
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +26,6 @@ class MainActivity : AppCompatActivity() {
         encrypter = EnCryptor()
         encryptionKeyStoreImpl = EncryptionKeyStoreImpl()
         encryptionKeyStoreImpl.setContext(this)
-        encryptionKeyStoreImpl.GenerateKey()
         encryptionKeyStoreImpl.loadKey()
         deCryptor = DeCryptor()
 
@@ -38,12 +36,17 @@ class MainActivity : AppCompatActivity() {
         val decrypt = findViewById<Button>(R.id.button2)
 
         val cl = Clazz()
-        cl.courseId = "10"
+
+
+        cl.id = 1
+        cl.courseId = "121"
         cl.courseName = "Maths"
 
         val cls = Clazz()
+
+        cls.id = 2
         cls.courseId = "10"
-        cls.courseName = "Maths"
+        cls.courseName = "English"
 
         val list = ArrayList<Clazz>()
 
@@ -51,48 +54,28 @@ class MainActivity : AppCompatActivity() {
         list.add(cls)
 
         encrypt.setOnClickListener {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(IO).launch {
+
+                    encryptionKeyStoreImpl.encryptList(list)
                 for (item in list) {
-                    encryptObj(item)
-                }
-                repo.insertAllClasses(list!!)
+                    println("#result id .. ${item.id}")
+                    println("#result CId .. ${item.courseId}")
+                    println("#result CName .. ${item.courseName}")
+            }
+//                repo.insertAllClasses(list!!)
             }
         }
 
         decrypt.setOnClickListener {
             CoroutineScope(IO).launch {
-                val list = repo.getAllStudent()
+
+                    encryptionKeyStoreImpl.decryptList(list)
                 for (item in list) {
-                    decryptObj(item)
+                    println("#result id .. ${item.id}")
+                    println("#result CId .. ${item.courseId}")
+                    println("#result CName .. ${item.courseName}")
                 }
             }
         }
-
     }
-
-
-    fun encryptObj(classObject: Any): Any {
-        val f = classObject.javaClass.declaredFields
-        for (item in f) {
-            val field = classObject.javaClass.getDeclaredField(item.name)
-            field.isAccessible = true
-            val value = field.get(classObject) //getting value if specific field
-            if (value.javaClass.name != "int")
-                field.set(classObject, encryptionKeyStoreImpl.encrypt(value?.toString()))
-        }
-        return classObject
-    }
-
-    fun decryptObj(classObject: Any): Any {
-        val f = classObject.javaClass.declaredFields
-        for (item in f) {
-            val field = classObject.javaClass.getDeclaredField(item.name)
-            field.isAccessible = true
-            val value = field.get(classObject) //getting value if specific field
-            if (value.javaClass.name != "int")
-                field.set(classObject, encryptionKeyStoreImpl.decrypt(value?.toString()))
-        }
-        return classObject
-    }
-
 }

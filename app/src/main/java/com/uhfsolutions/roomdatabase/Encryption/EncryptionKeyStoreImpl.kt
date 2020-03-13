@@ -12,7 +12,6 @@ import javax.crypto.SecretKey
 class EncryptionKeyStoreImpl {
 
 
-
     var key: SecretKey? = null
     private var encryptor: EnCryptor? = null
 
@@ -22,42 +21,87 @@ class EncryptionKeyStoreImpl {
      * Making this class Singleton
      * Using Bill Pugh Singleton Implementation
      */
-    companion object SingletonHelper {
-        private val _Instance = EncryptionKeyStoreImpl()
+    companion object {
         val SAMPLE_ALIAS = "MYALIAS22"
-        private val TAG = "encript"
     }
 
     init {
-        encryptor = EnCryptor()
         try {
+            encryptor = EnCryptor()
             decryptor = DeCryptor()
+            generateKey()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    fun encrypt(value: String?): String? {
-        try {
-            return encryptor!!.encryptText(value!!, key)
-        } catch (e: Exception) {
-            e.printStackTrace()
+    fun encryptList(list: List<Any>): List<Any> {
+        for (item in list) {
+            encryptObject(item)
         }
-        return null
+        return list
     }
 
-    fun decrypt(value: String?): String? { //        String decriptedText = "";
-        return decryptor?.decrypt(value!!, key)
+    fun decryptList(list: List<Any>): List<Any> {
+        for (item in list) {
+            decryptObject(item)
+        }
+        return list
     }
-    fun loadKey(){
+
+
+    fun encryptObject(classObject: Any): Any {
+        val f = classObject.javaClass.declaredFields
+        for (item in f) {
+            val field = classObject.javaClass.getDeclaredField(item.name)
+            field.isAccessible = true
+            val value = field.get(classObject) //getting value if specific field
+            if (value.javaClass.name != "java.lang.Integer")
+                field.set(classObject, encrypt(value?.toString()))
+        }
+        return classObject
+    }
+
+    fun decryptObject(classObject: Any): Any {
+        val f = classObject.javaClass.declaredFields
+        for (item in f) {
+            val field = classObject.javaClass.getDeclaredField(item.name)
+            field.isAccessible = true
+            val value = field.get(classObject) //getting value if specific field
+            if (value.javaClass.name != "java.lang.Integer")
+                field.set(classObject, decrypt(value?.toString()))
+        }
+        return classObject
+    }
+
+    private fun encrypt(value: String?): String? {
+        return try {
+            encryptor!!.encryptText(value!!, key)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+    }
+
+    private fun decrypt(value: String?): String? {
+        return try {
+            decryptor?.decrypt(value!!, key)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    fun loadKey() {
         try { // Load Keystore
             val fis =
-                FileInputStream(context!!.getFilesDir().getAbsolutePath().toString() + "/OEKeyStore")
+                FileInputStream(context!!.filesDir.absolutePath.toString() + "/OEKeyStore")
             ks!!.load(fis, password)
             // Load the secret key
             val secretKeyEntry: KeyStore.SecretKeyEntry =
                 ks!!.getEntry(EncryptionKeyStoreImpl.SAMPLE_ALIAS, null) as KeyStore.SecretKeyEntry
-            key = secretKeyEntry.getSecretKey()
+            key = secretKeyEntry.secretKey
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -79,7 +123,7 @@ class EncryptionKeyStoreImpl {
         }
     }
 
-    fun GenerateKey() {
+    private fun generateKey() {
         try {
             ks?.load(null, password)
             val kg: KeyGenerator = KeyGenerator.getInstance("AES")
@@ -88,20 +132,11 @@ class EncryptionKeyStoreImpl {
             val secretKeyEntry: KeyStore.SecretKeyEntry = KeyStore.SecretKeyEntry(key)
             ks!!.setEntry(EncryptionKeyStoreImpl.SAMPLE_ALIAS, secretKeyEntry, null)
             val fos =
-                FileOutputStream(context!!.getFilesDir().getAbsolutePath().toString() + "/OEKeyStore")
+                FileOutputStream(context!!.filesDir.absolutePath.toString() + "/OEKeyStore")
             ks!!.store(fos, password)
             loadKey()
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
-
-    fun SaveKey() {
-        try {
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        }
-    }
-
-
 }

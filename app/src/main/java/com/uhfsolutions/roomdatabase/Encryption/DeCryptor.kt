@@ -96,7 +96,7 @@ class DeCryptor internal constructor() {
         KeyStoreException::class
     )
     private fun getSecretKey(alias: String): SecretKey {
-        return (keyStore?.getEntry(alias, null) as KeyStore.SecretKeyEntry).getSecretKey()
+        return (keyStore?.getEntry(alias, null) as KeyStore.SecretKeyEntry).secretKey
     }
 
     companion object {
