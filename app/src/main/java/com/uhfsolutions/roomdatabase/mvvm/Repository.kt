@@ -6,31 +6,66 @@ import com.uhfsolutions.roomdatabase.MyApplication
 import com.uhfsolutions.roomdatabase.model.Post
 import com.uhfsolutions.roomdatabase.retrofit.RetrofitClient
 import com.uhfsolutions.roomdatabase.room.DataBaseRoom
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
 import retrofit2.Response
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
-class Repository(context:Context):CoroutineScope{
-    private val dbRoom = DataBaseRoom(context)
+object Repository:CoroutineScope{
+
+    private lateinit var context:Context
+
+    fun setContext(cont:Context){
+        context = cont
+    }
+    fun getContext():Context {
+        return context
+    }
+    private val dbRoom = DataBaseRoom(getContext())
     private val dao = dbRoom.dao()
-    private val client = RetrofitClient().jsonApi
+    private val client = RetrofitClient.client
     private val encryptionDecryptionAccess:EncryptionKeyStoreImpl
     init {
-        MyApplication.init(context)
+        MyApplication.init(getContext())
         encryptionDecryptionAccess = MyApplication.encryptionImplementation()
     }
 
     suspend fun insertAllPostInDB(){
         var list = ArrayList<Post>()
+
+//        withContext(IO){
+//            val job = withTimeoutOrNull(1000) {
+//                response = getAllPostFromWebService()
+//                try{
+//                    if(response.code() == 200){
+//                        list.addAll(response.body()!!)
+//                        println("#DEBUG MSG  .. ${response.message()}")
+//
+//                        encryptionDecryptionAccess.encryptList(list)
+//                        dao.insertPost(list)
+//                    }
+//                    else{
+//
+//                        println("#ERROR  .. ${response.errorBody().toString()}")
+//                    }
+//
+//                }
+//                catch (e:Exception){
+//                    println("#ERROR.. ${e.message}")
+//                }
+//            }
+//
+//            if(job == null){
+//                println("#ERROR... timeout" )
+//            }
+//        }
         val response = getAllPostFromWebService()
 
         try{
             if(response.code() == 200){
                 list.addAll(response.body()!!)
-                println("#DEBUG MSG  .. ${response.message()}")
+                println("#DEBUG MSG  .. ${response.code()}")
 
                 encryptionDecryptionAccess.encryptList(list)
                 dao.insertPost(list)
@@ -41,7 +76,7 @@ class Repository(context:Context):CoroutineScope{
             }
 
         }
-        catch (e:Exception){
+        catch (e:CancellationException){
             println("#ERROR.. ${e.message}")
         }
     }

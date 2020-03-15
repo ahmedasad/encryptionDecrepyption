@@ -3,15 +3,17 @@ package com.uhfsolutions.roomdatabase.retrofit
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitClient {
-
-    private var retrofit:Retrofit
-    init {
-         retrofit = Retrofit.Builder()
+object RetrofitClient {
+    val retrofit: Retrofit.Builder by lazy {
+        Retrofit.Builder()
             .baseUrl("https://jsonplaceholder.typicode.com/")
             .addConverterFactory(GsonConverterFactory.create())
-            .build()
+
     }
-    val jsonApi = retrofit.create(RetrofitApi::class.java)
+    val client: RetrofitApi by lazy {
+        retrofit
+            .build()
+            .create(RetrofitApi::class.java)
+    }
 
 }
