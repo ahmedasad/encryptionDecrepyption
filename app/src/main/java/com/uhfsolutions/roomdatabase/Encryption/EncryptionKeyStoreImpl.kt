@@ -29,7 +29,6 @@ class EncryptionKeyStoreImpl {
         try {
             encryptor = Encryptor()
             decryptor = Decryptor()
-            generateKey()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -123,7 +122,7 @@ class EncryptionKeyStoreImpl {
         }
     }
 
-    private fun generateKey() {
+    fun generateKey() {
         try {
             ks?.load(null, password)
             val kg: KeyGenerator = KeyGenerator.getInstance("AES")

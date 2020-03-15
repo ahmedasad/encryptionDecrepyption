@@ -4,76 +4,75 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import com.uhfsolutions.roomdatabase.Encryption.Decryptor
-import com.uhfsolutions.roomdatabase.Encryption.Encryptor
-import com.uhfsolutions.roomdatabase.Encryption.EncryptionKeyStoreImpl
-import com.uhfsolutions.roomdatabase.model.Clazz
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import com.uhfsolutions.roomdatabase.model.Post
+import com.uhfsolutions.roomdatabase.mvvm.Repository
+import com.uhfsolutions.roomdatabase.mvvm.ViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private lateinit var textView: TextView
-    private lateinit var encrypter: Encryptor
-    private lateinit var encryptionKeyStoreImpl: EncryptionKeyStoreImpl
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
 
-        encrypter = Encryptor()
-        encryptionKeyStoreImpl = EncryptionKeyStoreImpl()
-        encryptionKeyStoreImpl.setContext(this)
-        encryptionKeyStoreImpl.loadKey()
+        val repo = Repository(this)
+
+        val context = this
+
+        val viewModel =
+            ViewModelProviders.of(this@MainActivity, object : ViewModelProvider.Factory {
+                override fun <T : androidx.lifecycle.ViewModel?> create(modelClass: Class<T>): T {
+                    return ViewModel(context) as T
+                }
+            }).get(ViewModel::class.java)
+
+        val observer = Observer<List<Post>> {
+            Toast.makeText(context, "length: ${it!!.size}", Toast.LENGTH_LONG).show()
+        }
+
+            viewModel.showAllPosts()
+                .observe(context, object : Observer<List<Post>> {
+                    override fun onChanged(t: List<Post>?) {
+                        Toast.makeText(
+                            context,
+                            "Length.. ${t!!.size}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
+
+//                val l = viewModel.getPosts()
+
 
         textView = findViewById(R.id.textView)
-        val repo = Repository(this)
 
         val encrypt = findViewById<Button>(R.id.button)
         val decrypt = findViewById<Button>(R.id.button2)
 
-        val cl = Clazz()
 
-
-        cl.id = 1
-        cl.courseId = "121"
-        cl.courseName = "Maths"
-
-        val cls = Clazz()
-
-        cls.id = 2
-        cls.courseId = "10"
-        cls.courseName = "English"
-
-        val list = ArrayList<Clazz>()
-
-        list.add(cl)
-        list.add(cls)
 
         encrypt.setOnClickListener {
-            CoroutineScope(IO).launch {
+            launch {
+                viewModel.getAllPost()
+                viewModel.insertAllPost()
 
-                    encryptionKeyStoreImpl.encryptList(list)
-                for (item in list) {
-                    println("#result id .. ${item.id}")
-                    println("#result CId .. ${item.courseId}")
-                    println("#result CName .. ${item.courseName}")
             }
-//                repo.insertAllClasses(list!!)
-            }
+
+
         }
-
         decrypt.setOnClickListener {
-            CoroutineScope(IO).launch {
 
-                    encryptionKeyStoreImpl.decryptList(list)
-                for (item in list) {
-                    println("#result id .. ${item.id}")
-                    println("#result CId .. ${item.courseId}")
-                    println("#result CName .. ${item.courseName}")
-                }
-            }
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = IO
 }

@@ -1,20 +1,25 @@
-package com.uhfsolutions.roomdatabase
+package com.uhfsolutions.roomdatabase.room
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.uhfsolutions.roomdatabase.model.Clazz
+import com.uhfsolutions.roomdatabase.model.ListOfPosts
+import com.uhfsolutions.roomdatabase.model.Post
 
-@Database(entities = [Clazz::class], version = 2)
+@Database(entities = [Post::class], version = 7)
 abstract class DataBaseRoom: RoomDatabase() {
     abstract fun dao(): Dao
 
     companion object {
         private var dbInstance: DataBaseRoom? = null
         private var LOOK = Any()
-        operator fun invoke(context: Context) = dbInstance ?: synchronized(LOOK) {
-            dbInstance ?: buildDbInstance(context).also {
+        operator fun invoke(context: Context) = dbInstance
+            ?: synchronized(LOOK) {
+            dbInstance
+                ?: buildDbInstance(
+                    context
+                ).also {
                 dbInstance = it
             }
         }
