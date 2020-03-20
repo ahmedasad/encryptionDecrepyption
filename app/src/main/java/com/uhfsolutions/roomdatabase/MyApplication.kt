@@ -15,7 +15,6 @@ class MyApplication : Application() {
         init(context)
     }
     companion object{
-        private val encrypter = Encryptor()
         private val encryptionKeyStoreImpl = EncryptionKeyStoreImpl()
         fun init(context: Context){
             encryptionKeyStoreImpl.setContext(context)

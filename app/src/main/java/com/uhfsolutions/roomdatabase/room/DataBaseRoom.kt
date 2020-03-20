@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.uhfsolutions.roomdatabase.model.ListOfPosts
 import com.uhfsolutions.roomdatabase.model.Post
 
-@Database(entities = [Post::class], version = 7)
+@Database(entities = [Post::class], version = 1)
 abstract class DataBaseRoom: RoomDatabase() {
     abstract fun dao(): Dao
 

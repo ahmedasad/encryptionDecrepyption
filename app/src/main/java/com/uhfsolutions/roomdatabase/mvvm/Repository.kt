@@ -12,22 +12,16 @@ import retrofit2.Response
 import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
-object Repository:CoroutineScope{
+class Repository(context: Context):CoroutineScope{
 
-    private lateinit var context:Context
 
-    fun setContext(cont:Context){
-        context = cont
-    }
-    fun getContext():Context {
-        return context
-    }
-    private val dbRoom = DataBaseRoom(getContext())
+    private val dbRoom = DataBaseRoom(context)
     private val dao = dbRoom.dao()
     private val client = RetrofitClient.client
     private val encryptionDecryptionAccess:EncryptionKeyStoreImpl
+
     init {
-        MyApplication.init(getContext())
+        MyApplication.init(context)
         encryptionDecryptionAccess = MyApplication.encryptionImplementation()
     }
 
