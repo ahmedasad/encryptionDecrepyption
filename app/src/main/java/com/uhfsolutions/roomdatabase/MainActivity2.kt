@@ -11,11 +11,7 @@ class MainActivity2 : AppCompatActivity() {
         setContentView(R.layout.activity_main2)
         button.setOnClickListener {
             val d = intent.extras
-            val r = TransformBundle.getData(d!!,Car()) as Car
-            println("CAR BUNDLE")
-            println(r.id)
-            println(r.model)
-            println(r.quantity)
+
         }
     }
 }

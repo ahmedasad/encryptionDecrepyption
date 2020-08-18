@@ -1,45 +1,49 @@
 package com.uhfsolutions.roomdatabase
 
-import android.content.Intent
-import android.media.MediaPlayer
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Context
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
-import com.uhfsolutions.roomdatabase.bundle.TransformBundle
+import android.view.ViewGroup
+import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.children
+import androidx.fragment.app.Fragment
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
-import kotlin.coroutines.CoroutineContext
 
-class MainActivity : AppCompatActivity(), CoroutineScope {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val car = Car()
-        car.id = "4"
-        car.model = "Honda"
-        car.quantity = 5
 
-        btn_go.setOnClickListener(View.OnClickListener {
-            val intent = Intent(this,MainActivity2::class.java)
-            val bundle = TransformBundle.setBundle(car)
-            intent.putExtras(bundle)
-            startActivity(intent)
-        })
-
+        val adapter = AdapterViewPager(supportFragmentManager)
+        val f1 = Fragment()
+        val f2 = Fragment()
+        val f3 = Fragment()
+        adapter.addFragment(f1, "")
+        adapter.addFragment(f2, "")
+        adapter.addFragment(f3, "")
+        findViewById<ViewPager>(R.id.pager).setAdapter(adapter)
+        findViewById<TabLayout>(R.id.tabLayout).setupWithViewPager(findViewById<ViewPager>(R.id.pager))
+        val slidingTabStrip = findViewById<TabLayout>(R.id.tabLayout).getChildAt(0) as ViewGroup
+        for(i in 0 until (slidingTabStrip.children.count())){
+            val v = slidingTabStrip.getChildAt(i)
+            val params =  v.getLayoutParams() as (ViewGroup.MarginLayoutParams)
+            params.rightMargin = 8;
+        }
 
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = IO
 }
 
+sealed class Result(){
+    data class Response(val response:Any): Result()
+    data class Error(val error:String): Result()
+}
 
-class Car{
-    var id:String? = null
-    var model:String? = null
-    var quantity:Int = 1
+interface Response{
+    fun response(response:Any)
+    fun failure(failure:String)
 }
